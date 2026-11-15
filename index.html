@@ -1,67 +1,100 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Postcards from the Moon</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #142541;
-            overflow: hidden;
-        }
-
-        /* Main background image */
-        .landing-page {
-            position: absolute;
-            width: min(100vw, 177.87vh);
-            aspect-ratio: 1270 / 714;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-
-            background-image: url("landing.png");
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-        }
-
-        /* Invisible clickable area over Start */
-        .start-hotspot {
-            position: absolute;
-
-            left: 49%;
-            top: 54%;
-            width: 21.5%;
-            height: 15.5%;
-
-            display: block;
-            cursor: pointer;
-        }
-
-        .start-hotspot:focus-visible {
-            outline: 3px solid white;
-            outline-offset: 4px;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rotating Moon</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+  :root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(ellipse at 50% 40%, #1e4fa8 0%, #0d2a66 55%, #061633 100%);
+    display: flex; flex-direction: column; gap: 48px; align-items: center; justify-content: center;
+    overflow: hidden; font-family: system-ui, sans-serif;
+  }
+  .stars { position: fixed; inset: 0; pointer-events: none; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+  .moon {
+    --d: min(220px, 55vw);
+    width: var(--d); height: var(--d); border-radius: 50%;
+    position: relative; overflow: hidden;
+    background: #d9d9d2;
+    box-shadow: 0 0 60px 10px rgba(180,210,255,.35), 0 0 140px 40px rgba(120,170,255,.2);
+  }
+  .surface { position: absolute; top: 0; left: 0; height: 100%; width: calc(var(--d) * 2); animation: spin 24s linear infinite; }
+  @keyframes spin { from { transform: translateX(0); } to { transform: translateX(calc(var(--d) * -1)); } }
+  .crater {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #a9a9a2 0%, #b9b9b2 60%, #cfcfc8 100%);
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,.25);
+  }
+  .shade {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.25) 0%, rgba(0,0,0,0) 45%, rgba(5,10,30,.75) 100%);
+  }
+  .loading {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 16px; letter-spacing: 2px; color: #cfe3ff;
+    text-shadow: 3px 3px 0 #061633;
+    -webkit-font-smoothing: none; font-smooth: never;
+    position: relative; z-index: 1;
+  }
+  .dots { display: inline-block; width: 4ch; overflow: hidden; vertical-align: bottom; white-space: nowrap; animation: dots 1.2s steps(4) infinite; }
+  @keyframes dots { from { width: 0; } to { width: 4ch; } }
+  @media (prefers-reduced-motion: reduce) { .surface, .star { animation-duration: 120s; } }
+</style>
 </head>
-
 <body>
+<div class="stars" id="stars"></div>
+<div class="moon" id="moon">
+  <div class="surface" id="surface"></div>
+  <div class="shade"></div>
+</div>
+<div class="loading">LOADING<span class="dots">...</span></div>
 
-    <div class="landing-page">
+<script>
+  // Seeded pseudo-random so the layout is stable
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
 
-        <a href="second.html"
-           class="start-hotspot"
-           aria-label="Start exploring">
-        </a>
+  // Stars
+  const stars = document.getElementById('stars');
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div'); el.className = 'star';
+    const size = 1 + rnd() * 2;
+    el.style.cssText = `left:${rnd()*100}%;top:${rnd()*100}%;width:${size}px;height:${size}px;animation-delay:${rnd()*3}s`;
+    stars.appendChild(el);
+  }
 
-    </div>
+  // Craters: one pattern (percent of moon diameter), repeated twice for a seamless loop
+  const surface = document.getElementById('surface');
+  const craters = [];
+  for (let i = 0; i < 16; i++) craters.push({ x: rnd() * 100, y: 8 + rnd() * 84, r: 4 + rnd() * 12 });
+  for (let copy = 0; copy < 2; copy++) {
+    craters.forEach(c => {
+      const el = document.createElement('div'); el.className = 'crater';
+      const d = c.r * 2;
+      el.style.cssText = `left:calc(var(--d) * ${(c.x + copy * 100 - c.r) / 100});top:calc(var(--d) * ${(c.y - c.r) / 100});width:calc(var(--d) * ${d / 100});height:calc(var(--d) * ${d / 100})`;
+      surface.appendChild(el);
+    });
+  }
+</script>
 
+<script>
+  // Go to the next page after 3 seconds (3000 ms). Make sure page2.html exists in the same folder.
+  setTimeout(function () {
+    window.location.href = "page2.html";
+  }, 3000);
+</script>
+
+<!--
+  Quick tweaks:
+  Moon size: change 220px in --d
+  Spin speed: change 24s in .surface
+  Text size or colour: change 16px or #cfe3ff in .loading
+  Dot speed: change 1.2s in .dots
+  Redirect delay: change 3000 in the last script
+-->
 </body>
 </html>

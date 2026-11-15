@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postcards from the Moon</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #142541;
+            overflow: hidden;
+        }
+
+        .landing-page {
+            position: absolute;
+            width: min(100vw, 177.87vh);
+            aspect-ratio: 1270 / 714;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            background-image: url("landing.gif");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+
+        .start-hotspot {
+            position: absolute;
+            left: 49%;
+            top: 54%;
+            width: 21.5%;
+            height: 15.5%;
+            display: block;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="landing-page">
+        <a href="third.html"
+           class="start-hotspot"
+           aria-label="Start exploring">
+        </a>
+    </div>
+
+</body>
+</html>
